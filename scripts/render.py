@@ -91,8 +91,8 @@ def main():
             lines.append(rec["share"] + "#" + urllib.parse.quote(name, safe=""))
 
     text = "\n".join(lines) + "\n"
-    (ROOT / "output" / "sub.txt").write_text(text, encoding="utf-8")
-    (ROOT / "output" / "sub_base64.txt").write_text(
+    (ROOT / "output" / "X.txt").write_text(text, encoding="utf-8")
+    (ROOT / "output" / "X_base64.txt").write_text(
         base64.b64encode(text.encode("utf-8")).decode() + "\n", encoding="utf-8"
     )
     print(f"[render] wrote {len(lines)} configs ({flagged} with country flag)")
