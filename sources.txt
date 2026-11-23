@@ -1,0 +1,2 @@
+# هر منبع را در یک خط بنویسید. خطوطی که با # شروع شوند نادیده گرفته می‌شوند.
+https://raw.githubusercontent.com/UCIRANX/Vpn/refs/heads/main/UcSubot.txt
