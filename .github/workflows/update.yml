@@ -1,0 +1,71 @@
+name: Update subscription
+
+on:
+  schedule:
+    - cron: "27 */4 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-subscription
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Xray-core
+        run: |
+          curl -sSL -o /tmp/xray.zip https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-64.zip
+          mkdir -p /tmp/xray
+          unzip -o /tmp/xray.zip -d /tmp/xray
+          sudo install -m 755 /tmp/xray/xray /usr/local/bin/xray
+          xray version
+
+      - name: Fetch sources
+        run: python3 scripts/fetch.py
+
+      - name: Parse and deduplicate
+        run: python3 scripts/parse.py
+
+      - name: TCP precheck
+        run: python3 scripts/precheck.py
+
+      - name: Real test through Xray
+        env:
+          CONC: "12"
+        run: python3 scripts/test_xray.py
+
+      - name: Score and select
+        run: python3 scripts/score.py
+
+      - name: Render output
+        run: python3 scripts/render.py
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add output state
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git commit -m "Update subscription"
+          for i in 1 2 3; do
+            git pull --rebase origin main && git push && exit 0
+            echo "Push failed, retrying ($i)..."
+            sleep 5
+          done
+          exit 1
