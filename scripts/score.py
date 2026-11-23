@@ -5,7 +5,7 @@ import pathlib
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 TMP = pathlib.Path("/tmp/ucsub")
 STATE = ROOT / "state" / "health.json"
-TOP = 200
+TOP = 300
 KEEP_DAYS = 7
 HISTORY = 10
 
